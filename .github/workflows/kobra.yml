@@ -9,22 +9,24 @@ jobs:
   predict:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    - name: Install dependencies
-      run: pip install pandas numpy scikit-learn requests openpyxl
-    - name: Run Kobra
-      env:
-        BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
-      run: python kobra.py
-   - name: Commit predictions
-      run: |
-        git config --local user.email "kobra@action.com"
-        git config --local user.name "Operation Kobra"
-        git fetch origin
-        git reset --hard origin/main
-        git add predictions_*.csv
-        git diff --staged --quiet || git commit -m "Predictions $(date +%Y-%m-%d)"
-        git push
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pandas numpy scikit-learn requests openpyxl beautifulsoup4 nba_api
+      - name: Run Kobra
+        env:
+          BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
+        run: python kobra.py
+      - name: Commit predictions
+        run: |
+          git config --local user.email "kobra@action.com"
+          git config --local user.name "Operation Kobra"
+          git fetch origin
+          git reset --hard origin/main
+          git add predictions_*.csv
+          git diff --staged --quiet || git commit -m "Predictions $(date +%Y-%m-%d)"
+          git push
