@@ -19,10 +19,12 @@ jobs:
       env:
         BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
       run: python kobra.py
-    - name: Commit predictions
+   - name: Commit predictions
       run: |
         git config --local user.email "kobra@action.com"
         git config --local user.name "Operation Kobra"
+        git fetch origin
+        git reset --hard origin/main
         git add predictions_*.csv
         git diff --staged --quiet || git commit -m "Predictions $(date +%Y-%m-%d)"
         git push
