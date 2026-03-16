@@ -533,7 +533,19 @@ for team_id in daten["HOME_TEAM_ID"].unique():
         heim_vorteil[team_id] = vorteil
 
 # Teams mit stärkstem Heimvorteil
-teams = pd.read_csv(os.path.expanduser("~/Downloads/nba_daten/teams.csv"))
+# Teams direkt von balldontlie API laden
+response_teams = requests.get(
+    "https://api.balldontlie.io/v1/teams",
+    headers=HEADERS,
+    params={"per_page": 100}
+)
+teams_data = response_teams.json()["data"]
+teams = pd.DataFrame([{
+    "TEAM_ID": t["id"],
+    "NICKNAME": t["name"],
+    "CITY": t["city"],
+    "FULL_NAME": t["full_name"]
+} for t in teams_data])
 vorteil_df = pd.DataFrame(
     list(heim_vorteil.items()),
     columns=["TEAM_ID", "Heimvorteil"]
