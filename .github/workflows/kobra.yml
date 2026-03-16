@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install dependencies
-        run: pip install pandas numpy scikit-learn requests openpyxl beautifulsoup4 nba_api
+        run: pip install pandas numpy scikit-learn requests openpyxl beautifulsoup4 nba_api xgboost
       - name: Run Kobra
         env:
           BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
