@@ -23,20 +23,28 @@ def lade_spiele(saison):
         params = {"seasons[]": saison, "per_page": 100}
         if cursor:
             params["cursor"] = cursor
-        r = requests.get("https://api.balldontlie.io/v1/games", 
-                        headers=HEADERS, params=params)
-        if r.status_code == 429:
-            print("Rate limit, warte 60 Sekunden...")
-            time.sleep(60)
+        try:
+            r = requests.get("https://api.balldontlie.io/v1/games",
+                           headers=HEADERS, params=params)
+            if r.status_code == 429:
+                print("Rate limit, warte 60 Sekunden...")
+                time.sleep(60)
+                continue
+            if r.status_code != 200 or not r.text:
+                print(f"Fehler: {r.status_code} - {r.text}")
+                time.sleep(30)
+                continue
+            data = r.json()
+            spiele.extend(data["data"])
+            cursor = data["meta"].get("next_cursor")
+            if not cursor:
+                break
+            time.sleep(1.5)  # längere Pause
+        except Exception as e:
+            print(f"Fehler: {e}, warte 30 Sekunden...")
+            time.sleep(30)
             continue
-        data = r.json()
-        spiele.extend(data["data"])
-        cursor = data["meta"].get("next_cursor")
-        if not cursor:
-            break
-        time.sleep(0.5)
     return spiele
-
 alle_spiele = []
 for saison in [2022, 2023, 2024, 2025]:
     print(f"Lade Saison {saison}...")
@@ -256,12 +264,22 @@ print(f"Genauigkeit auf Saison 2025: {acc:.1%}")
 heute = datetime.now().strftime("%Y-%m-%d")
 print(f"Lade Spiele für: {heute}")
 
-r = requests.get("https://api.balldontlie.io/v1/games",
-                headers=HEADERS,
-                params={"dates[]": heute, "per_page": 100})
-
-data = r.json()
-heute_spiele = data["data"]
+try:
+    r = requests.get("https://api.balldontlie.io/v1/games",
+                    headers=HEADERS,
+                    params={"dates[]": heute, "per_page": 100})
+    if r.status_code == 429:
+        time.sleep(60)
+        r = requests.get("https://api.balldontlie.io/v1/games",
+                        headers=HEADERS,
+                        params={"dates[]": heute, "per_page": 100})
+    print(f"Status: {r.status_code}")
+    print(f"Antwort: {r.text[:200]}")
+    data = r.json()
+    heute_spiele = data["data"]
+except Exception as e:
+    print(f"Fehler: {e}")
+    heute_spiele = []
 print(f"✅ {len(heute_spiele)} Spiele heute")
 
 for s in heute_spiele:
