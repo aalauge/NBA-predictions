@@ -12,7 +12,7 @@ import time
 from datetime import datetime, timedelta
 
 # API Key
-API_KEY = "98ee804c-c05f-4eb3-88cd-3b7d42ae474e"
+API_KEY = os.environ.get("BALLDONTLIE_API_KEY", "98ee804c-c05f-4eb3-88cd-3b7d42ae474e")
 HEADERS = {"Authorization": API_KEY}
 
 # Spieldaten laden (Saisons 2022-2026)
